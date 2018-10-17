@@ -11,6 +11,9 @@
     using Winium.Cruciatus;
     using Winium.Cruciatus.Settings;
 
+    using WindowsInput.Native;
+    using WindowsInput;
+
     #endregion
 
     internal class WiniumKeyboard
@@ -34,6 +37,7 @@
 
         public void KeyDown(string keyToPress)
         {
+
             var key = KeyboardModifiers.GetVirtualKeyCode(keyToPress);
             this.modifiers.Add(keyToPress);
             CruciatusFactory.Keyboard.KeyDown(key);
@@ -41,6 +45,7 @@
 
         public void KeyUp(string keyToRelease)
         {
+
             var key = KeyboardModifiers.GetVirtualKeyCode(keyToRelease);
             this.modifiers.Remove(keyToRelease);
             CruciatusFactory.Keyboard.KeyUp(key);
@@ -53,6 +58,7 @@
             this.SendKeys(builder);
         }
 
+
         #endregion
 
         #region Methods
@@ -63,6 +69,7 @@
 
             foreach (var modifierKey in tmp)
             {
+
                 this.KeyUp(modifierKey);
             }
         }
@@ -71,10 +78,12 @@
         {
             if (this.modifiers.Contains(modifier))
             {
+
                 this.KeyUp(modifier);
             }
             else
             {
+
                 this.KeyDown(modifier);
             }
         }
@@ -83,6 +92,7 @@
         {
             foreach (var keyEvent in events)
             {
+
                 if (keyEvent.IsNewLine())
                 {
                     CruciatusFactory.Keyboard.SendEnter();
@@ -106,12 +116,29 @@
         {
             string str = Convert.ToString(key);
 
-            if (this.modifiers.Contains(Keys.LeftShift) || this.modifiers.Contains(Keys.Shift))
+            if (KeyboardModifiers.IsKeyMapped(str))
             {
-                str = str.ToUpper();
+
+                var keyCode = KeyboardModifiers.GetVirtualKeyCode(str);
+
+                CruciatusFactory.Keyboard.KeyDown(keyCode);
+                CruciatusFactory.Keyboard.KeyUp(keyCode);
+            }
+            else
+            {
+
+                if (this.modifiers.Contains(Keys.LeftShift) || this.modifiers.Contains(Keys.Shift))
+                {
+                    str = str.ToUpper();
+                }
+
+
+                CruciatusFactory.Keyboard.SendText(str);
             }
 
-            CruciatusFactory.Keyboard.SendText(str);
+
+
+
         }
 
         #endregion
